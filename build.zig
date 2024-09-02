@@ -21,19 +21,19 @@ pub fn build(b: *std.Build) void {
     elf.setLinkerScript(b.path("linker.ld"));
     b.installArtifact(elf);
 
-    const img = b.addObjCopy(elf.getEmittedBin(), .{
+    const bin = b.addObjCopy(elf.getEmittedBin(), .{
         .format = .bin
     });
-    img.step.dependOn(&elf.step);
+    bin.step.dependOn(&elf.step);
     
-    const r = b.addSystemCommand(&[_][]const u8{
+    const img = b.addSystemCommand(&[_][]const u8{
         "arm-none-eabi-objcopy",
         "zig-out/bin/kernel8.elf",
         "-O",
         "binary",
-        "kernel8.img"
+        "zig-out/bin/kernel8.img"
     });
 
-    r.step.dependOn(&img.step);
-    b.getInstallStep().dependOn(&r.step);
+    img.step.dependOn(&bin.step);
+    b.getInstallStep().dependOn(&img.step);
 }
